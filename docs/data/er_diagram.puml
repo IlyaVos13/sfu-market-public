@@ -1,0 +1,94 @@
+@startuml
+hide circle
+skinparam monochrome true
+entity "User - Пользователь" as User {
+id UUID PK
+email varchar(254) UNIQUE
+password_hash text
+display_name varchar(80)
+role enum(user,admin)
+is_blocked boolean
+created_at timestamptz
+}
+entity "Category - Категория" as Category {
+id integer PK
+name varchar(80) UNIQUE
+slug varchar(80) UNIQUE
+sort_order integer
+}
+entity "Dormitory - Общежитие" as Dormitory {
+id integer PK
+name varchar(80) UNIQUE
+address varchar(250)
+}
+entity "Listing - Объявление" as Listing {
+id integer PK
+owner_id UUID FK User
+category_id integer FK Category
+dormitory_id integer NULL FK Dormitory
+custom_location varchar(250) NULL
+title varchar(120)
+description text
+price numeric(12,2)
+condition enum
+contact_type enum
+contact_value varchar(250)
+status enum
+created_at, updated_at timestamptz
+published_at, sold_at timestamptz NULL
+moderated_by_id UUID NULL FK User
+moderated_at timestamptz NULL
+rejection_reason text NULL
+deleted_at timestamptz NULL
+version bigint
+}
+entity "Photo - Фотография" as Photo {
+id integer PK
+listing_id integer FK Listing
+storage_key varchar(250) UNIQUE
+content_type varchar(40)
+sort_order integer
+UNIQUE(listing_id, sort_order)
+}
+entity "Favorite - Избранное" as Favorite {
+user_id UUID FK User
+listing_id integer FK Listing
+created_at timestamptz
+PK(user_id, listing_id)
+}
+entity "Report - Жалоба" as Report {
+id integer PK
+listing_id integer FK Listing
+reporter_id UUID FK User
+reason enum
+details text NULL
+status enum(open,resolved)
+created_at timestamptz
+resolved_by_id UUID NULL FK User
+resolved_at timestamptz NULL
+resolution_action enum NULL
+resolution_comment text NULL
+version bigint
+}
+entity "Notification - Уведомление" as Notification {
+id integer PK
+user_id UUID FK User
+listing_id integer NULL FK Listing
+type enum
+text text
+created_at timestamptz
+read_at timestamptz NULL
+}
+User "1" -- "0..*" Listing : владелец
+Category "1" -- "0..*" Listing : категория
+Dormitory "0..1" -- "0..*" Listing : место
+Listing "1" -- "1..5" Photo : фото
+User "1" -- "0..*" Favorite : избранное
+Listing "1" -- "0..*" Favorite : ссылка
+User "1" -- "0..*" Report : автор
+Listing "1" -- "0..*" Report : жалобы
+User "1" -- "0..*" Notification : получатель
+Listing "0..1" -- "0..*" Notification : событие
+User "0..1" -- "0..*" Listing : модератор
+User "0..1" -- "0..*" Report : исполнитель
+@enduml

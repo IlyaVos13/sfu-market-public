@@ -1,0 +1,272 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions" targetNamespace="urn:sfu-market:processes">
+  <bpmn:process id="Process" isExecutable="false">
+    <bpmn:laneSet id="Lanes">
+      <bpmn:lane id="Lane0" name="Продавец">
+        <bpmn:flowNodeRef>s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>submit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>errors</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sold</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane1" name="SFU Market">
+        <bpmn:flowNodeRef>validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>valid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>queue</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>reject</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>publish</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hide</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>e</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane2" name="Администратор">
+        <bpmn:flowNodeRef>review</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>decision</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane3" name="Покупатель">
+        <bpmn:flowNodeRef>search</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>contact</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="s" name="">
+      <bpmn:outgoing>f1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="submit" name="Подать / исправить объявление">
+      <bpmn:incoming>f1</bpmn:incoming>
+      <bpmn:incoming>f5</bpmn:incoming>
+      <bpmn:incoming>f10</bpmn:incoming>
+      <bpmn:outgoing>f2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:serviceTask id="validate" name="Проверить поля и фотографии">
+      <bpmn:incoming>f2</bpmn:incoming>
+      <bpmn:outgoing>f3</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="cardAssoc">
+        <bpmn:targetRef>card</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="valid" name="">
+      <bpmn:incoming>f3</bpmn:incoming>
+      <bpmn:outgoing>f4</bpmn:outgoing>
+      <bpmn:outgoing>f6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="errors" name="Прочитать ошибки">
+      <bpmn:incoming>f4</bpmn:incoming>
+      <bpmn:outgoing>f5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:serviceTask id="queue" name="Сохранить pending и очередь">
+      <bpmn:incoming>f6</bpmn:incoming>
+      <bpmn:outgoing>f7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:task id="review" name="Проверить объявление">
+      <bpmn:incoming>f7</bpmn:incoming>
+      <bpmn:outgoing>f8</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="resultAssoc">
+        <bpmn:targetRef>result</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="decision" name="">
+      <bpmn:incoming>f8</bpmn:incoming>
+      <bpmn:outgoing>f9</bpmn:outgoing>
+      <bpmn:outgoing>f11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="reject" name="Отказ: rejected Причина + уведомление">
+      <bpmn:incoming>f9</bpmn:incoming>
+      <bpmn:outgoing>f10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="publish" name="Published: каталог и уведомление">
+      <bpmn:incoming>f11</bpmn:incoming>
+      <bpmn:outgoing>f12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:task id="search" name="Найти вещь и открыть карточку">
+      <bpmn:incoming>f12</bpmn:incoming>
+      <bpmn:outgoing>f13</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="contact" name="Связаться с автором вне сайта">
+      <bpmn:incoming>f13</bpmn:incoming>
+      <bpmn:outgoing>f14</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="sold" name="Отметить «Продано»">
+      <bpmn:incoming>f14</bpmn:incoming>
+      <bpmn:outgoing>f15</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:serviceTask id="hide" name="Убрать из активного каталога">
+      <bpmn:incoming>f15</bpmn:incoming>
+      <bpmn:outgoing>f16</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="e" name="">
+      <bpmn:incoming>f16</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="f1" sourceRef="s" targetRef="submit" name=""/>
+    <bpmn:sequenceFlow id="f2" sourceRef="submit" targetRef="validate" name=""/>
+    <bpmn:sequenceFlow id="f3" sourceRef="validate" targetRef="valid" name=""/>
+    <bpmn:sequenceFlow id="f4" sourceRef="valid" targetRef="errors" name="ошибки"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="errors" targetRef="submit" name=""/>
+    <bpmn:sequenceFlow id="f6" sourceRef="valid" targetRef="queue" name="верно"/>
+    <bpmn:sequenceFlow id="f7" sourceRef="queue" targetRef="review" name=""/>
+    <bpmn:sequenceFlow id="f8" sourceRef="review" targetRef="decision" name=""/>
+    <bpmn:sequenceFlow id="f9" sourceRef="decision" targetRef="reject" name="отказ"/>
+    <bpmn:sequenceFlow id="f10" sourceRef="reject" targetRef="submit" name=""/>
+    <bpmn:sequenceFlow id="f11" sourceRef="decision" targetRef="publish" name="одобрить"/>
+    <bpmn:sequenceFlow id="f12" sourceRef="publish" targetRef="search" name=""/>
+    <bpmn:sequenceFlow id="f13" sourceRef="search" targetRef="contact" name=""/>
+    <bpmn:sequenceFlow id="f14" sourceRef="contact" targetRef="sold" name="передача вне ИС"/>
+    <bpmn:sequenceFlow id="f15" sourceRef="sold" targetRef="hide" name=""/>
+    <bpmn:sequenceFlow id="f16" sourceRef="hide" targetRef="e" name=""/>
+    <bpmn:dataObject id="cardObj"/>
+    <bpmn:dataObjectReference id="card" dataObjectRef="cardObj" name="Проверенная&#10;карточка + фото"/>
+    <bpmn:dataObject id="resultObj"/>
+    <bpmn:dataObjectReference id="result" dataObjectRef="resultObj" name="Решение&#10;и причина"/>
+  </bpmn:process>
+  <bpmn:collaboration id="Collaboration">
+    <bpmn:participant id="Pool" name="Процесс работы с объявлением" processRef="Process"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram">
+    <bpmndi:BPMNPlane id="Plane" bpmnElement="Collaboration">
+      <bpmndi:BPMNShape id="PoolDI" bpmnElement="Pool">
+        <dc:Bounds x="0" y="60" width="1190" height="1320"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane0DI" bpmnElement="Lane0">
+        <dc:Bounds x="10" y="70" width="295" height="1310"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane1DI" bpmnElement="Lane1">
+        <dc:Bounds x="305" y="70" width="295" height="1310"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane2DI" bpmnElement="Lane2">
+        <dc:Bounds x="600" y="70" width="295" height="1310"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane3DI" bpmnElement="Lane3">
+        <dc:Bounds x="895" y="70" width="295" height="1310"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f1DI" bpmnElement="f1">
+        <di:waypoint x="157" y="185"/>
+        <di:waypoint x="157" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f2DI" bpmnElement="f2">
+        <di:waypoint x="267" y="262"/>
+        <di:waypoint x="342" y="262"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f3DI" bpmnElement="f3">
+        <di:waypoint x="452" y="305"/>
+        <di:waypoint x="452" y="355"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f4DI" bpmnElement="f4">
+        <di:waypoint x="422" y="385"/>
+        <di:waypoint x="267" y="385"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f5DI" bpmnElement="f5">
+        <di:waypoint x="47" y="385"/>
+        <di:waypoint x="27" y="385"/>
+        <di:waypoint x="27" y="262"/>
+        <di:waypoint x="47" y="262"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f6DI" bpmnElement="f6">
+        <di:waypoint x="452" y="415"/>
+        <di:waypoint x="452" y="470"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f7DI" bpmnElement="f7">
+        <di:waypoint x="562" y="510"/>
+        <di:waypoint x="637" y="510"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f8DI" bpmnElement="f8">
+        <di:waypoint x="747" y="550"/>
+        <di:waypoint x="747" y="620"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f9DI" bpmnElement="f9">
+        <di:waypoint x="717" y="650"/>
+        <di:waypoint x="562" y="650"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f10DI" bpmnElement="f10">
+        <di:waypoint x="342" y="655"/>
+        <di:waypoint x="30" y="655"/>
+        <di:waypoint x="30" y="235"/>
+        <di:waypoint x="47" y="235"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f11DI" bpmnElement="f11">
+        <di:waypoint x="747" y="680"/>
+        <di:waypoint x="747" y="730"/>
+        <di:waypoint x="452" y="730"/>
+        <di:waypoint x="452" y="765"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f12DI" bpmnElement="f12">
+        <di:waypoint x="562" y="805"/>
+        <di:waypoint x="932" y="805"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f13DI" bpmnElement="f13">
+        <di:waypoint x="1042" y="850"/>
+        <di:waypoint x="1042" y="960"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f14DI" bpmnElement="f14">
+        <di:waypoint x="1042" y="1045"/>
+        <di:waypoint x="1042" y="1080"/>
+        <di:waypoint x="157" y="1080"/>
+        <di:waypoint x="157" y="1120"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f15DI" bpmnElement="f15">
+        <di:waypoint x="267" y="1162"/>
+        <di:waypoint x="342" y="1162"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f16DI" bpmnElement="f16">
+        <di:waypoint x="452" y="1205"/>
+        <di:waypoint x="452" y="1290"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="sDI" bpmnElement="s">
+        <dc:Bounds x="137" y="145" width="40" height="40"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="submitDI" bpmnElement="submit">
+        <dc:Bounds x="47" y="220" width="220" height="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="validateDI" bpmnElement="validate">
+        <dc:Bounds x="342" y="220" width="220" height="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="validDI" bpmnElement="valid">
+        <dc:Bounds x="422" y="355" width="60" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="errorsDI" bpmnElement="errors">
+        <dc:Bounds x="47" y="350" width="220" height="70"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="queueDI" bpmnElement="queue">
+        <dc:Bounds x="342" y="470" width="220" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewDI" bpmnElement="review">
+        <dc:Bounds x="637" y="470" width="220" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decisionDI" bpmnElement="decision">
+        <dc:Bounds x="717" y="620" width="60" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rejectDI" bpmnElement="reject">
+        <dc:Bounds x="342" y="610" width="220" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="publishDI" bpmnElement="publish">
+        <dc:Bounds x="342" y="765" width="220" height="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="searchDI" bpmnElement="search">
+        <dc:Bounds x="932" y="765" width="220" height="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="contactDI" bpmnElement="contact">
+        <dc:Bounds x="932" y="960" width="220" height="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="soldDI" bpmnElement="sold">
+        <dc:Bounds x="47" y="1120" width="220" height="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="hideDI" bpmnElement="hide">
+        <dc:Bounds x="342" y="1120" width="220" height="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="eDI" bpmnElement="e">
+        <dc:Bounds x="432" y="1290" width="40" height="40"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cardDI" bpmnElement="card">
+        <dc:Bounds x="635" y="220" width="230" height="85"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="cardAssocDI" bpmnElement="cardAssoc">
+        <di:waypoint x="562" y="245"/>
+        <di:waypoint x="635" y="245"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="resultDI" bpmnElement="result">
+        <dc:Bounds x="932" y="600" width="220" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="resultAssocDI" bpmnElement="resultAssoc">
+        <di:waypoint x="857" y="530"/>
+        <di:waypoint x="1042" y="530"/>
+        <di:waypoint x="1042" y="600"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,17 @@
+@startuml
+skinparam monochrome true
+actor "Пользователь / администратор" as U
+rectangle "SFU Market" {
+ rectangle "Web UI [Контейнер]
+React / JavaScript" as UI
+ rectangle "Backend API [Контейнер]
+ASP.NET Core / C#" as API
+ database "PostgreSQL [Контейнер]" as DB
+ folder "Фото [Контейнер]
+Файловая система" as F
+ UI --> API : HTTPS, JSON / multipart/form-data
+ API --> DB : SQL через EF Core / Npgsql
+ API --> F : файловый ввод-вывод
+}
+U --> UI : взаимодействует через браузер
+@enduml

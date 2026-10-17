@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+skinparam monochrome true
+actor "Продавец / покупатель" as U
+actor "Администратор" as A
+rectangle "SFU Market
+[Программная система]
+Объявления и модерация" as S
+rectangle "Telegram / VK
+[Внешние системы]" as M
+rectangle "Сервис карт
+[Внешняя система]" as K
+U --> S : размещает, ищет, связывается
+A --> S : проверяет публикации и жалобы
+S --> M : ссылка для перехода пользователя
+без вызова API
+S --> K : ссылка на адрес
+без вызова API
+@enduml
